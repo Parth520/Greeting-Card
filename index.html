@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grandparents Anniversary</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            background: radial-gradient(circle, #fff5e6 0%, #ffcccc 100%);
+            font-family: 'Georgia', serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+        
+        .scene {
+            width: 90vw;
+            max-width: 400px;
+            height: 60vw;
+            max-height: 250px;
+            perspective: 1000px;
+            z-index: 1;
+        }
+        
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateY(0deg);
+            transition: transform 1s;
+            cursor: pointer;
+        }
+        
+        .card.opened {
+            transform: rotateY(180deg);
+        }
+        
+        .face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .front {
+            background: #fffaf0;
+            align-items: center;
+            text-align: center;
+            color: #cc6699;
+        }
+        
+        .front h1 {
+            font-size: 1.8em;
+            margin: 0;
+        }
+        
+        .front p {
+            font-size: 1em;
+        }
+        
+        .back {
+            background: #fff;
+            transform: rotateY(180deg);
+            text-align: center;
+            color: #444;
+        }
+        
+        .back h2 {
+            margin-top: 0;
+            color: #cc6699;
+        }
+        
+        .back p {
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+        /* Particles */
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #ff0, #f00);
+            border-radius: 50%;
+            opacity: 1;
+            animation: converge 1.5s ease-in forwards;
+            pointer-events: none;
+        }
+        
+        @keyframes converge {
+            to {
+                transform: translate(var(--tx), var(--ty)) scale(0.2);
+                opacity: 0;
+            }
+        }
+        /* Floating hearts */
+        
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: red;
+            transform: rotate(45deg);
+            animation: float 6s linear infinite;
+        }
+        
+        .heart::before,
+        .heart::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: red;
+            border-radius: 50%;
+        }
+        
+        .heart::before {
+            top: -10px;
+            left: 0;
+        }
+        
+        .heart::after {
+            left: -10px;
+            top: 0;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) scale(1) rotate(45deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1.5) rotate(45deg);
+                opacity: 0;
+            }
+        }
+        /* Mobile text tweaks */
+        
+        @media (max-width: 480px) {
+            .front h1 {
+                font-size: 1.4em;
+            }
+            .front p,
+            .back p {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="scene">
+        <div class="card" id="card">
+            <div class="face front">
+                <h1>Happy Anniversary!</h1>
+                <p>To Our Precious Grandparents 💕</p>
+                <small>(tap the card to continue)</small>
+            </div>
+            <div class="face back">
+                <h2>Dear Nanima & Nanu,</h2>
+                <p>
+                    Your love is a shining example of what marriage is meant to be—enduring, patient, and full of joy.<br><br> Wishing you boundless happiness and love.<br> Happy Anniversary! 🎊
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="particles"></div>
+
+    <script>
+        const card = document.getElementById('card');
+        const particlesContainer = document.getElementById('particles');
+
+        card.addEventListener('click', () => {
+            const opened = card.classList.toggle('opened');
+            if (opened) launchParticlesFromCorners();
+        });
+
+        function launchParticlesFromCorners() {
+            const corners = [{
+                x: 0,
+                y: 0
+            }, {
+                x: window.innerWidth,
+                y: 0
+            }, {
+                x: 0,
+                y: window.innerHeight
+            }, {
+                x: window.innerWidth,
+                y: window.innerHeight
+            }];
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+
+            for (let corner of corners) {
+                for (let i = 0; i < 90; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+
+                    const x = corner.x;
+                    const y = corner.y;
+                    particle.style.left = `${x}px`;
+                    particle.style.top = `${y}px`;
+
+                    const spreadX = (Math.random() - 0.5) * 300;
+                    const spreadY = (Math.random() - 0.5) * 300;
+
+                    const dx = centerX - x + spreadX;
+                    const dy = centerY - y + spreadY;
+
+                    particle.style.setProperty('--tx', dx + 'px');
+                    particle.style.setProperty('--ty', dy + 'px');
+
+                    particlesContainer.appendChild(particle);
+                    setTimeout(() => particle.remove(), 1600);
+                }
+            }
+        }
+
+        // Floating heart animation
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.style.left = Math.random() * window.innerWidth + 'px';
+            heart.style.bottom = '-30px';
+            heart.style.animationDuration = (4 + Math.random() * 2) + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 6000);
+        }
+
+        setInterval(createHeart, 300);
+    </script>
+
+</body>
+
+</html>
